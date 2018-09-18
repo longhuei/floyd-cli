@@ -49,7 +49,7 @@ def upload_is_resumable(data_config):
     )
 
 
-def initialize_new_upload(data_config, access_token, description=None):
+def initialize_new_upload(data_config, access_token, tarball_path=None, description=None):
     # TODO: hit upload server to check for liveness before moving on
     data_config.set_tarball_path(None)
     data_config.set_data_endpoint(None)
@@ -58,15 +58,16 @@ def initialize_new_upload(data_config, access_token, description=None):
     namespace = data_config.namespace or access_token.username
     data_name = "{}/{}".format(namespace, data_config.name)
 
-    # Create tarball of the data using the ID returned from the API
-    temp_dir = tempfile.mkdtemp()
-    tarball_path = os.path.join(temp_dir, "floydhub_data.tar.gz")
+    if tarball_path is None:
+        # Create tarball of the data using the ID returned from the API
+        temp_dir = tempfile.mkdtemp()
+        tarball_path = os.path.join(temp_dir, "floydhub_data.tar.gz")
 
-    floyd_logger.debug("Creating tarfile with contents of current directory: %s",
-                       tarball_path)
-    floyd_logger.info("Compressing data...")
-    # TODO: purge tarball on Ctrl-C
-    create_tarfile(source_dir='.', filename=tarball_path)
+        floyd_logger.debug("Creating tarfile with contents of current directory: %s",
+                        tarball_path)
+        floyd_logger.info("Compressing data...")
+        # TODO: purge tarball on Ctrl-C
+        create_tarfile(source_dir='.', filename=tarball_path)
 
     # If starting a new upload fails for some reason down the line, we don't
     # want to re-tar, so save off the tarball path now

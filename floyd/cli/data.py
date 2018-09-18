@@ -74,9 +74,14 @@ def init(dataset_name):
 @click.command()
 @click.option('-r', '--resume',
               is_flag=True, default=False, help='Resume previous upload')
+@click.option(
+    '-t',
+    '--tar-file',
+    default=None,
+    help='Tar file of directory ready for upload')
 @click.option('--message', '-m', default='',
               help='Job commit message')
-def upload(resume, message):
+def upload(resume, tar_file, message):
     """
     Upload data in the current dir to Floyd.
     """
@@ -85,7 +90,7 @@ def upload(resume, message):
     if not upload_is_resumable(data_config) or not opt_to_resume(resume):
         abort_previous_upload(data_config)
         access_token = AuthConfigManager.get_access_token()
-        initialize_new_upload(data_config, access_token, message)
+        initialize_new_upload(data_config, access_token, tar_file, message)
 
     complete_upload(data_config)
 
